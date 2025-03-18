@@ -2,17 +2,89 @@
 <html>
 <head>
     <title>WordRush - Best Scores</title>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            color: #1f2937;
+        }
+        h1 {
+            color: #1e40af;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        li {
+            padding: 1rem;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        li:nth-child(odd) {
+            background-color: #f9fafb;
+        }
+        .player-name {
+            font-weight: bold;
+            color: #374151;
+        }
+        .score {
+            color: #d97706;
+            font-weight: bold;
+        }
+        .links {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        a:hover {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
 </head>
 <body>
     <h1>Best Scores</h1>
     <ul>
         {% for score in scores %}
-            <li>{{ score.player_name }} - {{ score.score }} points</li>
+            <li>
+                <span class="player-name">{{ score.player_name }}</span>
+                <span class="score">{{ score.score }} points</span>
+            </li>
         {% empty %}
             <li>No Results.</li>
         {% endfor %}
     </ul>
-    <a href="{% url 'play' %}">Play Again</a> |
-    <a href="{% url 'home' %}">Start</a>
+    <div class="links">
+        <a href="{% url 'play' %}">Play Again</a> |
+        <a href="{% url 'home' %}">Start</a>
+    </div>
 </body>
 </html>
