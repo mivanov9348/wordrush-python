@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordRush</title>
+    <style>
+        body {
+            background-color: #f3f4f6; /* bg-gray-100 */
+            font-family: sans-serif; /* font-sans */
+        }
+        .container {
+            max-width: 1200px; /* mx-auto approximation */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1.5rem; /* p-6 */
+        }
+        h1 {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: bold; /* font-bold */
+            text-align: center; /* text-center */
+            color: #2563eb; /* text-blue-600 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        .flex {
+            display: flex; /* flex */
+            justify-content: center; /* justify-center */
+            gap: 1rem; /* space-x-4 approximation */
+        }
+        .button {
+            padding: 0.5rem 1rem; /* px-4 py-2 */
+            border-radius: 0.25rem; /* rounded */
+            color: #ffffff; /* text-white */
+            text-decoration: none; /* remove underline from links */
+        }
+        .start-button {
+            background-color: #10b981; /* bg-green-500 */
+        }
+        .start-button:hover {
+            background-color: #059669; /* hover:bg-green-600 */
+        }
+        .scores-button {
+            background-color: #3b82f6; /* bg-blue-500 */
+        }
+        .scores-button:hover {
+            background-color: #2563eb; /* hover:bg-blue-600 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <div class="flex">
+            <a href="{% url 'play' %}" class="button start-button">Start Game</a>
+            <a href="{% url 'high_scores' %}" class="button scores-button">Best Scores</a>
+        </div>
+    </div>
+</body>
+</html>

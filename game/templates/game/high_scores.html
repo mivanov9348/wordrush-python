@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WordRush - Best Scores</title>
+</head>
+<body>
+    <h1>Best Scores</h1>
+    <ul>
+        {% for score in scores %}
+            <li>{{ score.player_name }} - {{ score.score }} points</li>
+        {% empty %}
+            <li>No Results.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'play' %}">Play Again</a> |
+    <a href="{% url 'home' %}">Start</a>
+</body>
+</html>
