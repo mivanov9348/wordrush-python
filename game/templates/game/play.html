@@ -53,9 +53,17 @@
             font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin: 0.5rem;
         }
         button:hover {
             background-color: #b91c1c;
+        }
+        #play_again {
+            background-color: #2563eb;
+            display: none; /* Скрито по подразбиране */
+        }
+        #play_again:hover {
+            background-color: #1e40af;
         }
         #score_form {
             display: none;
@@ -76,7 +84,8 @@
         <p>Points: <span id="score">0</span></p>
         <p>Word: <span id="word">{{ word }}</span></p>
         <input type="text" id="input_word" autofocus>
-        <button onclick="endGame()">End</button>
+        <button onclick="endGame()" id="end_btn">End</button>
+        <button onclick="playAgain()" id="play_again">Play Again</button>
 
         <form id="score_form" method="POST" action="{% url 'play' %}">
             {% csrf_token %}
@@ -91,8 +100,11 @@
     let score = 0;
     let words = [];
     let currentWordIndex = 0;
+    let timer;
     const wordElement = document.getElementById("word");
     const input = document.getElementById("input_word");
+    const endBtn = document.getElementById("end_btn");
+    const playAgainBtn = document.getElementById("play_again");
 
     // Зареждане на думите от JSON
     fetch("/static/words.json")
@@ -103,14 +115,18 @@
         })
         .catch(error => console.error("Грешка при зареждане на думите:", error));
 
-    const timer = setInterval(() => {
-        timeLeft--;
-        document.getElementById("timer").textContent = timeLeft;
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            endGame();
-        }
-    }, 1000);
+    // Стартиране на таймера
+    function startTimer() {
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById("timer").textContent = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                endGame();
+            }
+        }, 1000);
+    }
+    startTimer();
 
     input.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
@@ -118,7 +134,7 @@
             if (typedWord === wordElement.textContent) {
                 score += 10;
                 document.getElementById("score").textContent = score;
-                currentWordIndex = (currentWordIndex + 1) % words.length; // Циклично преминаване през думите
+                currentWordIndex = (currentWordIndex + 1) % words.length;
                 wordElement.textContent = words[currentWordIndex];
             }
             input.value = "";
@@ -128,13 +144,25 @@
     function endGame() {
         clearInterval(timer);
         input.disabled = true;
-        const name = prompt("Въведи име за резултата:");
-        if (name) {
-            document.getElementById("player_name").value = name;
-            document.getElementById("final_score").value = score;
-            document.getElementById("score_form").submit();
-        }
+        document.getElementById("timer").textContent = "Game Over";
+        endBtn.style.display = "none"; // Скрива "End"
+        playAgainBtn.style.display = "inline-block"; // Показва "Play Again"
     }
-</script>
+
+    function playAgain() {
+        timeLeft = 60;
+        score = 0;
+        currentWordIndex = 0;
+        document.getElementById("timer").textContent = timeLeft;
+        document.getElementById("score").textContent = score;
+        wordElement.textContent = words[currentWordIndex];
+        input.disabled = false;
+        input.value = "";
+        input.focus();
+        endBtn.style.display = "inline-block"; // Връща "End"
+        playAgainBtn.style.display = "none"; // Скрива "Play Again"
+        startTimer(); // Рестартира таймера
+    }
+    </script>
 </body>
 </html>
