@@ -85,6 +85,14 @@
             background-color: #1e40af;
         }
 
+        #back_to_menu {
+            background-color: #6b7280;
+        }
+
+        #back_to_menu:hover {
+            background-color: #4b5563;
+        }
+
         #score_form {
             display: none;
             margin-top: 1rem;
@@ -139,12 +147,13 @@
         <input type="text" id="input_word" autofocus>
         <button onclick="endGame()" id="end_btn">End</button>
         <button onclick="playAgain()" id="play_again">Play Again</button>
+        <button onclick="window.location.href='{% url 'home' %}'" id="back_to_menu">Back to Home</button>
 
         <form id="score_form" method="POST" action="{% url 'play' %}">
             {% csrf_token %}
-            <input type="text" name="player_name" id="player_name" placeholder="Your Name">
-            <input type="number" name="score" id="final_score">
-            <input type="number" name="words_typed" id="words_typed">
+            <input type="text" name="player_name" id="player_name" placeholder="Your Name" required>
+            <input type="hidden" name="score" id="final_score">
+            <input type="hidden" name="words_typed" id="words_typed">
             <input type="submit" value="Save">
         </form>
     </div>
