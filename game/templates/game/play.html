@@ -13,24 +13,38 @@
             height: 100vh;
             margin: 0;
         }
+
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
         h1 {
             color: #1e40af;
             font-size: 2.5rem;
             margin-bottom: 1rem;
         }
+
         p {
             font-size: 1.25rem;
             margin: 0.5rem 0;
             color: #374151;
         }
+
         span {
             font-weight: bold;
             color: #d97706;
         }
+
         #word {
             font-size: 1.75rem;
             color: #047857;
         }
+
         #input_word {
             padding: 0.75rem;
             font-size: 1.1rem;
@@ -41,9 +55,11 @@
             outline: none;
             transition: border-color 0.3s;
         }
+
         #input_word:focus {
             border-color: #2563eb;
         }
+
         button {
             background-color: #dc2626;
             color: white;
@@ -55,25 +71,61 @@
             transition: background-color 0.3s;
             margin: 0.5rem;
         }
+
         button:hover {
             background-color: #b91c1c;
         }
+
         #play_again {
             background-color: #2563eb;
-            display: none; /* Скрито по подразбиране */
+            display: none;
         }
+
         #play_again:hover {
             background-color: #1e40af;
         }
+
         #score_form {
             display: none;
+            margin-top: 1rem;
         }
-        .container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
+
+        #score_form input[type="text"] {
+            padding: 0.5rem;
+            margin: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+        }
+
+        #score_form input[type="submit"] {
+            background-color: #2563eb;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #score_form input[type="submit"]:hover {
+            background-color: #1e40af;
+        }
+
+        .points-feedback {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.5s ease;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .points-up {
+            color: #16a34a;
+        }
+
+        .points-down {
+            color: #dc2626;
         }
     </style>
 </head>
@@ -83,14 +135,16 @@
         <p>Time: <span id="timer">60</span> seconds</p>
         <p>Points: <span id="score">0</span></p>
         <p>Word: <span id="word">{{ word }}</span></p>
+        <div id="feedback-container"></div>
         <input type="text" id="input_word" autofocus>
         <button onclick="endGame()" id="end_btn">End</button>
         <button onclick="playAgain()" id="play_again">Play Again</button>
 
         <form id="score_form" method="POST" action="{% url 'play' %}">
             {% csrf_token %}
-            <input type="text" name="player_name" id="player_name">
+            <input type="text" name="player_name" id="player_name" placeholder="Your Name">
             <input type="number" name="score" id="final_score">
+            <input type="number" name="words_typed" id="words_typed">
             <input type="submit" value="Save">
         </form>
     </div>
@@ -98,6 +152,7 @@
     <script>
     let timeLeft = 60;
     let score = 0;
+    let wordsTyped = 0;
     let words = [];
     let currentWordIndex = 0;
     let timer;
@@ -105,8 +160,9 @@
     const input = document.getElementById("input_word");
     const endBtn = document.getElementById("end_btn");
     const playAgainBtn = document.getElementById("play_again");
+    const scoreForm = document.getElementById("score_form");
+    const feedbackContainer = document.getElementById("feedback-container");
 
-    // Зареждане на думите от JSON
     fetch("/static/words.json")
         .then(response => response.json())
         .then(data => {
@@ -115,7 +171,6 @@
         })
         .catch(error => console.error("Грешка при зареждане на думите:", error));
 
-    // Стартиране на таймера
     function startTimer() {
         timer = setInterval(() => {
             timeLeft--;
@@ -128,15 +183,38 @@
     }
     startTimer();
 
+    function showPointsFeedback(points) {
+        const feedback = document.createElement("div");
+        feedback.textContent = points > 0 ? "+10" : "-5";
+        feedback.className = `points-feedback ${points > 0 ? 'points-up' : 'points-down'}`;
+        feedbackContainer.appendChild(feedback);
+
+        setTimeout(() => {
+            feedback.style.opacity = "1";
+            feedback.style.top = "-20px";
+        }, 10);
+
+        setTimeout(() => {
+            feedback.style.opacity = "0";
+            feedback.style.top = "-40px";
+            setTimeout(() => feedback.remove(), 500);
+        }, 1000);
+    }
+
     input.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             const typedWord = input.value.trim();
             if (typedWord === wordElement.textContent) {
                 score += 10;
-                document.getElementById("score").textContent = score;
+                wordsTyped++;
+                showPointsFeedback(10);
                 currentWordIndex = (currentWordIndex + 1) % words.length;
                 wordElement.textContent = words[currentWordIndex];
+            } else {
+                score = Math.max(0, score - 5);
+                showPointsFeedback(-5);
             }
+            document.getElementById("score").textContent = score;
             input.value = "";
         }
     });
@@ -145,13 +223,17 @@
         clearInterval(timer);
         input.disabled = true;
         document.getElementById("timer").textContent = "Game Over";
-        endBtn.style.display = "none"; // Скрива "End"
-        playAgainBtn.style.display = "inline-block"; // Показва "Play Again"
+        endBtn.style.display = "none";
+        playAgainBtn.style.display = "inline-block";
+        scoreForm.style.display = "block";
+        document.getElementById("final_score").value = score;
+        document.getElementById("words_typed").value = wordsTyped;
     }
 
     function playAgain() {
         timeLeft = 60;
         score = 0;
+        wordsTyped = 0;
         currentWordIndex = 0;
         document.getElementById("timer").textContent = timeLeft;
         document.getElementById("score").textContent = score;
@@ -159,9 +241,10 @@
         input.disabled = false;
         input.value = "";
         input.focus();
-        endBtn.style.display = "inline-block"; // Връща "End"
-        playAgainBtn.style.display = "none"; // Скрива "Play Again"
-        startTimer(); // Рестартира таймера
+        endBtn.style.display = "inline-block";
+        playAgainBtn.style.display = "none";
+        scoreForm.style.display = "none";
+        startTimer();
     }
     </script>
 </body>

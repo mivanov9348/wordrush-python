@@ -14,107 +14,140 @@
             padding: 2rem;
             color: #1f2937;
         }
+
         h1 {
             color: #1e40af;
             font-size: 2.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             text-align: center;
         }
+
+        .scores-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
         ul {
             list-style: none;
             padding: 0;
-            width: 100%;
-            max-width: 600px; /* Увеличих ширината заради допълнителните полета */
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            margin: 0;
         }
+
         li {
-            padding: 1rem;
-            font-size: 1.2rem;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.1rem;
             border-bottom: 1px solid #e5e7eb;
             display: grid;
-            grid-template-columns: 2fr 1fr 2fr; /* Разпределяне на колонките */
-            align-items: center;
+            grid-template-columns: 2fr 1fr 1fr 2fr;
             gap: 1rem;
+            align-items: center;
         }
+
         li:last-child {
             border-bottom: none;
         }
+
         li:nth-child(odd) {
             background-color: #f9fafb;
         }
+
+        li.header {
+            background-color: #1e40af;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 1rem;
+            padding: 1rem 1.5rem;
+        }
+
         .player-name {
             font-weight: bold;
             color: #374151;
         }
+
         .score {
             color: #d97706;
             font-weight: bold;
-        }
-        .date {
-            color: #6b7280;
-            font-size: 1rem;
-        }
-        .links {
-            margin-top: 2rem;
             text-align: center;
         }
+
+        .avg-time {
+            color: #047857;
+            text-align: center;
+        }
+
+        .date {
+            color: #6b7280;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+
+        .links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
         a, button {
             color: #2563eb;
             text-decoration: none;
             font-size: 1.1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
             background: none;
-            border: none;
+            border: 2px solid #2563eb;
             cursor: pointer;
+            font-weight: 500;
         }
+
         a:hover, button:hover {
-            background-color: #dbeafe;
-            color: #1e40af;
+            background-color: #2563eb;
+            color: white;
         }
+
         .clear-btn {
             color: #dc2626;
-            margin-left: 1rem;
+            border-color: #dc2626;
         }
+
         .clear-btn:hover {
-            background-color: #fee2e2;
-            color: #991b1b;
+            background-color: #dc2626;
+            color: white;
         }
     </style>
 </head>
 <body>
-    <h1>Best Scores</h1>
-    <ul>
-        {% for score in scores %}
+    <h1>High Scores</h1>
+    <div class="scores-container">
+        <ul>
+            <li class="header">
+                <span>Player</span>
+                <span>Score</span>
+                <span>Avg. Time</span>
+                <span>Date</span>
+            </li>
+            {% for score in scores %}
             <li>
                 <span class="player-name">{{ score.player_name }}</span>
-                <span class="score">{{ score.score }} points</span>
-                <span class="date">{{ score.record_created|date:"Y-m-d H:i" }}</span>
+                <span class="score">{{ score.score }}</span>
+                <span class="avg-time">{{ score.average_time_per_word }}s</span>
+                <span class="date">{{ score.date_played|date:"Y-m-d H:i" }}</span>
             </li>
-        {% empty %}
-            <li>No Results.</li>
-        {% endfor %}
-    </ul>
+            {% endfor %}
+        </ul>
+    </div>
     <div class="links">
-        <a href="{% url 'play' %}">Play Again</a> |
-        <a href="{% url 'home' %}">Start</a> |
-        <form action="{% url 'clear_scores' %}" method="post" style="display: inline;">
+        <a href="{% url 'home' %}">Back to Home</a>
+        <form method="POST" action="{% url 'clear_scores' %}">
             {% csrf_token %}
-            <button type="submit" class="clear-btn">Clear Records</button>
+            <button type="submit" class="clear-btn">Clear Scores</button>
         </form>
     </div>
-
-    <script>
-        // Потвърждение преди изчистване на резултатите
-        document.querySelector('.clear-btn').addEventListener('click', function(e) {
-            if (!confirm('Are you sure you want to clear all records?')) {
-                e.preventDefault();
-            }
-        });
-    </script>
 </body>
 </html>
